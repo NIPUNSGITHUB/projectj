@@ -25,27 +25,49 @@ class OrderController extends Controller
 
     public function CustomerOrderPlaceInitialData()
     {
-        $user = Auth::user();
-        $items = Item::select('id','name')->get();        
-        $order_count = Order::where('user_id',$user->id)->count();   
+        $order_count = 0;
+        if(Auth::check())
+        {
+             $user = Auth::user();
+             $order_count = Order::where('user_id',$user->id)->count();   
+        } 
+
+        $items = Item::select('id','name')->get(); 
         $deliverd = Order::where('status',1)->count();   
         $pending = Order::where('status',0)->count();   
         $areas = Area::select('id','name')->get();
+        $next = DB::table('orders')->latest()->select('id')->first();        
+        
+        if(json_encode($next) != null)
+            $nextOrderNo = $next->id + 1;  
+        else
+            $nextOrderNo = 1;
       
-        return array('items'=>$items,'order_count'=>$order_count,'deliverd'=>$deliverd,'pending'=>$pending,'areas'=>$areas);
+        return array('items'=>$items,'order_count'=>$order_count,'deliverd'=>$deliverd,'pending'=>$pending,'areas'=>$areas,'nextOrderNo'=>$nextOrderNo);
         
     }
 
     public function CustomerOrderDetails(Request $request)
     {
         $rpp = $request->rpp;
-        $user = Auth::user();
+        $userId = 1;
+        if(Auth::check())
+        {
+             $user = Auth::user();
+             $userId = $user->id;
+        } 
         return  DB::table('orders')
                 ->join('items','items.id','orders.item_id')
                 ->select('orders.*','items.name')
-                ->where('user_id',$user->id)
+                ->where('user_id',$userId)
                 ->orderBy('orders.id','DESC')
                 ->paginate($rpp);
+    }
+
+    public function nextOrderNo()
+    {
+        $next = DB::table('orders')->latest()->select('id')->first();        
+        return json_decode($next); 
     }
 
     public function AllCustomerOrderDetails(Request $request)
@@ -57,8 +79,8 @@ class OrderController extends Controller
         $user = Auth::user();
         return  DB::table('orders')
                 ->join('items','items.id','orders.item_id')
-                ->join('users','users.id','orders.user_id')
-                ->join('areas','areas.id','users.area_id')
+                ->join('users','users.id','orders.user_id') 
+                ->join('areas','areas.id','orders.area_id')
                 ->select('orders.*','areas.name as area_name','items.name') 
                 ->where('areas.name','LIKE','%'.$selectedArea.'%')
                 ->orderBy('orders.id','DESC')
@@ -83,24 +105,34 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
-        $user = Auth::user();
+       
         $this->validate($request,[
 
             "item_id"=>"required", 
+            "area_id"=>"required",
             "qty"=>"required|numeric",
             "customer_name"=>"required",
             "add_note"=>"max:100",
             "contact_no"=>"required|max:15",
             "email"=>"email|max:100"
         ]);
+
+        $userId = 1;
+        if(Auth::check())
+        {
+             $user = Auth::user();
+             $userId = $user->id;
+        } 
+
  
        try {        
         
             $order = new Order();
             $order->item_id = $request->item_id;
-            $order->user_id = $user->id;
+            $order->user_id =  $userId;
             $order->customer_name = $request->customer_name;
             $order->qty = $request->qty;
+            $order->area_id = $request->area_id;
             $order->add_note = $request->add_note;
             $order->contact_no = $request->contact_no;
             $order->email = $request->email;

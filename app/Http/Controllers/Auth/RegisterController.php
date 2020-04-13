@@ -6,10 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use App\User;
 use App\Area;
+use App\SupplierArea;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-
+use Illuminate\Http\Request;
+use DB;
 class RegisterController extends Controller
 {
     /*
@@ -74,15 +76,66 @@ class RegisterController extends Controller
      * @param  array  $data
      * @return \App\User
      */
-    protected function create(array $data)
-    {
-       
-        return User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],            
-            'user_type'=>$data['user_type'],
-            'area_id'=>$data['area_id'],
-            'password' => Hash::make($data['password']),
-        ]);
+    protected function create(Request $request)
+    { 
+      
+      
+        if($request->user_type == 'Supplier')       
+       {
+            $this->validate($request, [
+                'name' => ['required', 'string', 'max:255'],
+                'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+                'password' => ['required', 'string', 'min:8'],
+                'confirmPassword'=>['required','string','min:8'],
+                'user_type'=> ['required'],
+                'contact_no'=>['required','numeric'],     
+                'areas'=>['required']       
+            ]); 
+       }else
+       {
+            $this->validate($request, [
+                'name' => ['required', 'string', 'max:255'],
+                'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+                'password' => ['required', 'string', 'min:8'],
+                'confirmPassword'=>['required','string','min:8'],
+                'user_type'=> ['required'],
+                'contact_no'=>['required','numeric'],            
+            ]);       
+       }
+
+        try {
+                $result= 0;
+                $area = $request->areas;
+                DB::beginTransaction();                
+              
+                $user = new User();
+                $user->name = $request->name;            
+                $user->email = $request->email;            
+                $user->user_type = $request->user_type; 
+                $user->contact_no = $request->contact_no;
+                $user->password = Hash::make($request->password);   
+                $result = $user->save();
+
+                if($request->user_type == 'Supplier')      
+               {
+                    foreach ($area as $value) {
+                        $supplierArea = new SupplierArea();
+                        $supplierArea->user_id = $user->id;
+                        $supplierArea->area_id = $value['id'];
+                        $result = $supplierArea->save();
+                    }
+               }
+         
+                DB::commit();
+                if($result)
+                    return 1;
+                else
+                    return 0;
+        } catch (Exception $th) {
+                DB::rollback();
+                return $th;
+        }
+
+        
     }
 }

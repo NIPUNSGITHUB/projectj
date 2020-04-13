@@ -70,9 +70,23 @@ class SupplierOrderController extends Controller
      * @param  \App\SupplierOrder  $supplierOrder
      * @return \Illuminate\Http\Response
      */
-    public function show(SupplierOrder $supplierOrder)
-    {
-        //
+    public function show(Request $request)
+    { 
+            $rpp = $request->rpp;
+            $selectedArea = $request->selectedArea;           
+            
+            $user = Auth::user();
+            return  DB::table('orders')
+                    ->join('supplier_orders','supplier_orders.order_id','orders.id')
+                    ->join('users','users.id','supplier_orders.user_id') 
+                    ->join('areas','areas.id','orders.area_id')
+                    ->join('items','items.id','orders.item_id')
+                    ->select('orders.*','areas.name as area_name','items.name') 
+                    ->where('users.id',$user->id)
+                    ->where('areas.name','LIKE','%'.$selectedArea.'%')
+                    ->orderBy('orders.id','DESC')
+                    ->paginate($rpp);
+       
     }
 
     /**

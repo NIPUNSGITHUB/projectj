@@ -52,11 +52,13 @@
                         </div>
 
                         <div class="form-group row mb-0">
-                            <div class="col-md-8 offset-md-4">
+                            <div class="justify-content-center col-md-8 offset-md-4">
                                 <button type="submit" class="btn btn-primary">
                                     {{ __('Login') }}
                                 </button>
-                                 <a type="button" href="/register" class="btn btn-success" rel="noopener noreferrer">Register</a>
+                                <a type="button" href="/register" class="btn btn-success" rel="noopener noreferrer">Register</a>
+                                <a type="button" href="/free" class="btn btn-info">Try Free</a><br>
+                                
                                 @if (Route::has('password.request'))
                                     <a class="btn btn-link" href="{{ route('password.request') }}">
                                         {{ __('Forgot Your Password?') }}

@@ -83,10 +83,14 @@
                       <td>{{orderDetail.add_note}}</td>
                       <td>
                         <p v-if="orderDetail.status == 1" class="text-success">Locked</p>
-                        <p v-if="orderDetail.status == 0" class="text-warning">Open</p>
+                        <p v-if="orderDetail.status == 0" style="color:rgb(238, 152, 1)">Open</p>
                       </td>
-                      <td class="text-center">{{orderDetail.deliver_note == null ? '-' :orderDetail.deliver_note}}</td>
-                      <td class="text-center">{{orderDetail.deliver_date == null ? '-' :orderDetail.deliver_date}}</td>
+                      <td
+                        class="text-center"
+                      >{{orderDetail.deliver_note == null ? '-' :orderDetail.deliver_note}}</td>
+                      <td
+                        class="text-center"
+                      >{{orderDetail.deliver_date == null ? '-' :orderDetail.deliver_date}}</td>
                       <td>{{orderDetail.updated_at}}</td>
                     </tr>
                   </tbody>
@@ -116,6 +120,16 @@
                 <h3 class="panel-title">Place Order</h3>
               </div>
               <div class="panel-body">
+                <div class="form-group">
+                  <div class="row">
+                    <div class="col-md-4 ">
+                      <label for>Order#</label>
+                      <input type="text" disabled class="form-control" v-model="nextOrderNo" />
+                    </div>
+                    <div class="col-md-4"></div>
+                    <div class="col-md-4"></div>
+                  </div>
+                </div>
                 <div class="form-group required">
                   <label for>Customer Name</label>
                   <input
@@ -133,7 +147,7 @@
                 </div>
                 <div class="required">
                   <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                       <label class="typo__label">Select Item</label>
                       <multiselect
                         v-model="itemValue"
@@ -149,7 +163,23 @@
                         <p class="text-danger">Item feild is invalid.</p>
                       </span>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-4">
+                      <label class="typo__label">Select Area</label>
+                      <multiselect
+                        v-model="selectedArea"
+                        deselect-label="Can't remove this value"
+                        track-by="id"
+                        label="name"
+                        placeholder="Select area"
+                        :options="areas"
+                        :searchable="false"
+                        :allow-empty="false"
+                      ></multiselect>
+                      <span v-if="errors.area_id">
+                        <p class="text-danger">Please select an area.</p>
+                      </span>
+                    </div>
+                    <div class="col-md-4">
                       <label class="typo__label">QTY.</label>
                       <input class="form-control" type="number" v-model="qty" />
                       <span v-if="errors.qty">
@@ -226,13 +256,16 @@ export default {
       emailAddress: null,
       itemValue: [{ id: "", name: "" }],
       items: [{ id: "", name: "" }],
+      selectedArea: "",
+      areas: [{ id: "", name: "" }],
       orderDetails: {},
       ordersCount: null,
       deliverd: null,
       pending: null,
       load_data: false,
       add_order: false,
-      rpp: 5
+      rpp: 10,
+      nextOrderNo: null
     };
   },
   methods: {
@@ -274,11 +307,12 @@ export default {
       axios
         .get("populate/initial/data")
         .then(res => {
-          // console.log(res.data["orders"]);
+          this.areas = res.data["areas"];
           this.items = res.data["items"];
           this.ordersCount = res.data["order_count"];
           this.deliverd = res.data["deliverd"];
           this.pending = res.data["pending"];
+          this.nextOrderNo = res.data["nextOrderNo"];
           this.load_data = false;
         })
         .catch(err => {
@@ -292,6 +326,7 @@ export default {
         .post("store/order/details", {
           item_id: this.itemValue.id,
           qty: this.qty,
+          area_id: this.selectedArea.id,
           customer_name: this.customerName,
           add_note: this.additionalNote,
           contact_no: this.contactNumber,

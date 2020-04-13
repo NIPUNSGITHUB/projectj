@@ -1,8 +1,15 @@
 <!doctype html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-<head>
+  <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    @if (Auth::check())
+        <meta name="user" content="{{ Auth::user() }}">
+    @else
+        <meta name="user" content="Tempory">
+    @endif
+    
 
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -20,11 +27,9 @@
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 
     <!-- Bootstrap core CSS -->
-    <link href="{{ asset('css/bootstrap.min.css')}}" rel="stylesheet">
-    <link href="{{ asset('css/style.css') }}" rel="stylesheet">
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/vue-multiselect@2.1.0/dist/vue-multiselect.min.css">
- 
-    <!-- <script src="http://cdn.ckeditor.com/4.6.1/standard/ckeditor.js"></script> -->
     <style>
     
     body:after{
@@ -47,8 +52,9 @@
     
     </style>
 </head>
-<body>
-    <div id="app">      
+<body style="background-image: url(/background.png);
+ background-repeat: no-repeat;background-size: cover;">
+  <div id="app">
  
     <nav class="navbar navbar-default">
       <div class="container">
@@ -75,7 +81,7 @@
       <div class="container">
         <div class="row">
          
-            <main class="mt-10 py-0">   
+            <main class="mt-10 py-0">                
                 @yield('content')           
             </main>   
             
@@ -84,8 +90,8 @@
     </section>
           
     </div>  
-    
+  
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script src="{{ asset('js/bootstrap.min.js')}}"></script>
+    <script src="{{ asset('js/bootstrap.min.js')}}"></script> 
 </body>
 </html>

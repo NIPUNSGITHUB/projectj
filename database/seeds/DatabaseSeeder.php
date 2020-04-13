@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Database\Seeder;
-
+use Carbon\Carbon;
 class DatabaseSeeder extends Seeder
 {
     /**
@@ -11,28 +11,38 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
+        $dateTime = Carbon::now()->toDateTimeString();
         DB::table('areas')->insert([
             'name' => 'Colombo',         
-            'created_at' =>  '2019-12-31 11:49:29', 
-            'updated_at' =>  '2020-01-02 10:37:36'
+            'created_at' =>  $dateTime,
+            'updated_at' =>  $dateTime
         ]); 
 
         DB::table('areas')->insert([
             'name' => 'Kandy',         
-            'created_at' =>  '2019-12-31 11:49:29', 
-            'updated_at' =>  '2020-01-02 10:37:36'
+            'created_at' =>  $dateTime,
+            'updated_at' =>  $dateTime
         ]); 
 
         DB::table('items')->insert([
             'name' => 'A4',         
-            'created_at' =>  '2019-12-31 11:49:29', 
-            'updated_at' =>  '2020-01-02 10:37:36'
+            'created_at' =>  $dateTime,
+            'updated_at' =>  $dateTime
         ]); 
 
         DB::table('items')->insert([
             'name' => 'A3',         
-            'created_at' =>  '2019-12-31 11:49:29', 
-            'updated_at' =>  '2020-01-02 10:37:36'
+            'created_at' =>  $dateTime,
+            'updated_at' =>  $dateTime
+        ]); 
+
+        DB::table('users')->insert([            
+            'name' => 'Tempory',  
+            'email' => '',  
+            'password' => 'Tempory',  
+            'user_type' => 'Tempory',        
+            'created_at' =>  $dateTime,
+            'updated_at' =>  $dateTime
         ]); 
 
     }

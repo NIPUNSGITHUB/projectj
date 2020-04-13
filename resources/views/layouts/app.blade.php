@@ -4,7 +4,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <meta name="user" content="{{ Auth::user() }}">
+    @if (Auth::check())
+        <meta name="user" content="{{ Auth::user() }}">
+    @else
+        <meta name="user" content="Tempory">
+    @endif
+    
 
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -20,7 +25,7 @@
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
-
+    {{-- <link rel="stylesheet" href="vue-datetime.css"> --}}
     <!-- Bootstrap core CSS -->
     <link href="/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/style.css" rel="stylesheet">
@@ -47,28 +52,44 @@
     
     </style>
 </head>
-<body>
+<body  style="background-image: url(/background.png);
+background-repeat: no-repeat;background-size: cover;">
   <div id="app">
   
     <header id="header">
       <div class="container">
         <div class="row">
           <div class="col-md-9">
-            <h1><span class="glyphicon glyphicon-cog mt-2" aria-hidden="true"></span>{{Auth::user()->user_type}} Dashboard <small>Manage Your orders</small></h1>
+           
+            @if (Auth::check())
+              <h1><span class="glyphicon glyphicon-cog mt-2" aria-hidden="true"></span>{{Auth::user()->user_type}} Dashboard <small>Manage Your orders</small></h1>                
+            @else
+          
+              <h1><span class="glyphicon glyphicon-cog mt-2" aria-hidden="true">Tempory Customer Dashboard <small>Manage Your orders</small></h1>                
+            @endif           
             <notifications group="foo" />
           </div>
           <div class="col-md-3">
          <div class="row">
             <div class="col-md-3 pr-0">
-                  <img src="https://lh3.googleusercontent.com/-_mSikl2xdgc/AAAAAAAAAAI/AAAAAAAAAAA/AAKWJJOAtp0m9hdup5A6MktBbF_tzo8wJw.CMID/s83-c/photo.jpg" class="rounded-circle mt-3" alt="Cinque Terre" width="60" height="60"> 
+                @if (Auth::check())
+                  <img src="https://lh3.googleusercontent.com/-_mSikl2xdgc/AAAAAAAAAAI/AAAAAAAAAAA/AAKWJJOAtp0m9hdup5A6MktBbF_tzo8wJw.CMID/s83-c/photo.jpg" class="rounded-circle mt-3" alt="Cinque Terre" width="60" height="60">                   
+                @else
+                  <img src="https://cdn1.iconfinder.com/data/icons/flat-business-icons/128/user-512.png" class="rounded-circle mt-3" alt="Cinque Terre" width="60" height="60">                    
+                @endif              
             </div>
              <div class="col-md-9">
+              @if (Auth::check())
                   <h5>{{Auth::user()->name}}</h5>
                   <form id="logout-form" action="{{ route('logout') }}" method="POST">
-                     @csrf
-                    <button type="submit" class="btn btn-success btn-block"> <i class="fa fa-sign-out" aria-hidden="true"></i> Logout</button>
-                  </form>
-                  
+                    @csrf
+                   <button type="submit" class="btn btn-success btn-block"> <i class="fa fa-sign-out" aria-hidden="true"></i> Logout</button>
+                 </form>                 
+              @else
+                  <h5>Tempory Customer</h5> 
+                  <a href="/login">Home</a>
+              @endif
+               
             </div>
          </div>
             
@@ -87,8 +108,12 @@
        
        
         <main class="py-4">
-           <router-view></router-view>
-            <!-- @yield('content') -->
+          @if (Auth::check())
+            <router-view></router-view>
+          @else
+            @yield('content')  
+          @endif
+          
         </main>
 
 
